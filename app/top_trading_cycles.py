@@ -1,22 +1,38 @@
-from user import User
+from review_bid_list import ReviewBidList
+from review_group import ReviewGroup
 from random import shuffle
 
-def gale_shapley(users):
+def gale_shapley(user_preferences):
+    # max number of reviewers on a topic
+    max_reviewers = user_preferences.review_size
+    
     # map of team ids to collection of users reviewing them
-    assigned_users = []
+    team_reviewer_map = []
     
 	# randomize users for fairness
-    shuffle(users)
+    shuffle(user_preferences.participants)
     
-    # choose the highest ranked team available for each user
-    for user in users:
+    # for each participant
+    for participant in user_preferences.participants:
     
-        #for each team id in user.topic_rank
-        for team in user.topic_rank:
+        #for each team in that participant's priority list
+        for teamid in participant.teams:
         
-            # if team id is in the map
-                # fewer than MAX REVIEWERS, assign user to this review
-                # MAX REVIEWERS, fall through to next team id
+            found = false
+            for review_group in team_reviewer_map:
+                # if team id is in the map
+                if review_group.teamid == teamid:
+                    found = true
+                    # fewer than MAX REVIEWERS, assign user to this review
+                    if len(review_group.users) < max_reviewers:
+                        review_group.users.append(participant.participant_id)
+                    # MAX REVIEWERS, fall through to next team id
+                    break
+
             #if team id is not in the map, insert it and assign user to this review
+            if found == false:
+                user_list = []
+                user_list.append(participant.participant_id)
+                assigned_teams.append(ReviewGroup(teamid, user_list))
             
-	return assigned_users
+	return team_reviewer_map
