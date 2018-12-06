@@ -19,6 +19,7 @@ def gale_shapley(user_preferences):
         for teamid in participant.teams:
         
             found = 0
+            appended = 0
             for review_group in team_reviewer_map:
                 # if team id is in the map
                 if review_group.teamid == teamid:
@@ -26,6 +27,7 @@ def gale_shapley(user_preferences):
                     # fewer than MAX REVIEWERS, assign user to this review
                     if len(review_group.users) < max_reviewers:
                         review_group.users.append(participant.participant_id)
+                        appended = 1
                     # MAX REVIEWERS, fall through to next team id
                     break
 
@@ -34,5 +36,8 @@ def gale_shapley(user_preferences):
                 user_list = []
                 user_list.append(participant.participant_id)
                 team_reviewer_map.append(ReviewGroup(teamid, user_list))
+                appended = 1
+            if appended == 1:
+                break
             
 	return team_reviewer_map
