@@ -35,4 +35,4 @@ def gale_shapley(user_preferences):
                 user_list.append(participant.participant_id)
                 team_reviewer_map.append(ReviewGroup(teamid, user_list))
             
-	return team_reviewer_map
+    return team_reviewer_map
