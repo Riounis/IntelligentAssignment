@@ -7,6 +7,7 @@ import user
 import json
 import clustering as clst
 import top_trading_cycles as ttc
+import gale_shapley as gs
 
 def extract_users(req):
 	exper_data,users = ([],[])
@@ -17,6 +18,9 @@ def extract_users(req):
 		else:
 			users.append(User(exper_data[-1],user['pid']))
 	return exper_data,users
+
+def extract_reviews(req):
+	return req
 
 def send_teams_as_json(teams): #this method currently uses the classes defined for bidding
 	json_obj = [[user.pid for user in team.members] for team in teams]
@@ -30,6 +34,9 @@ def extract_task_data(req):
 def send_assigned_tasks_as_json(tasks):
 	#convert python objects to simple maps and lists
 	return flask.Response(json.dumps({"info":tasks}))
+
+def send_assigned_reviews_as_json(reviews): #returning a flask response object
+	return flask.Response(json.dumps({"info":reviews}))
 
 app = Flask(__name__)
 
@@ -45,10 +52,19 @@ def clstbuild():
 def ttctrading():
 	if not 'users' in flask.request.json or not 'teams' in flask.request.json or sum([not 'history' in user or not 'ranks' in user or not 'pid' in user for user in flask.request.json['users']]) > 0: #check for required fields in json request here
 		flask.abort(400)
-	users = extract_task_data(flask.request.json) #extract json data into necessary format
+	users = extract_users(flask.request.json) #extract json data into necessary format
+	print users 
 	
 	assignments = ttc.team_swap(users) #method where assignment algorithm is run
 	return send_assigned_tasks_as_json(assignments) #returning a flask response object
+
+@app.route('/assign_reviews',methods=['POST'])
+def galeshapley():
+	if not 'users' in flask.request.json or sum([not 'ranks' in user or not 'pid' in user for user in flask.request.json['users']]) > 0: #check for required fields in json request here
+		flask.abort(400)
+	data = extract_reviews(flask.request.json) #extract json data into necessary format
+	assignments = gs.gale_shapley(data['users'], data['item_size'], data['assign_size']) #method where assignment algorithm is run
+	return send_assigned_reviews_as_json(assignments) #returning a flask response object
 
 if __name__ == "__main__":
 	app.run(debug=True)
