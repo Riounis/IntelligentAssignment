@@ -63,7 +63,7 @@ def galeshapley():
 	if not 'users' in flask.request.json or sum([not 'ranks' in user or not 'pid' in user for user in flask.request.json['users']]) > 0: #check for required fields in json request here
 		flask.abort(400)
 	data = extract_reviews(flask.request.json) #extract json data into necessary format
-	assignments = gs.gale_shapley(data['users'], data['item_size'], data['assign_size']) #method where assignment algorithm is run
+	assignments = gs.gale_shapley(data['users'], data['user_size'], data['item_size']) #method where assignment algorithm is run
 	return send_assigned_reviews_as_json(assignments) #returning a flask response object
 
 if __name__ == "__main__":
